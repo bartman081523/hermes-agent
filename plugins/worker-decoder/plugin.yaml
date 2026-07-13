@@ -1,0 +1,7 @@
+name: worker-decoder
+version: "0.1.0"
+description: "Post-hoc decoder review using glm-5.2:cloud via Ollama. Worker = minimax-m3, Decoder = glm-5.2. After every worker turn the decoder reviews the final response text and either passes it through, corrects it, or rejects it."
+author: "Julian / ml4"
+homepage: "https://github.com/NousResearch/hermes-agent"
+hooks:
+  - transform_llm_output

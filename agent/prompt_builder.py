@@ -293,6 +293,13 @@ TOOL_USE_ENFORCEMENT_GUIDANCE = (
     "without acting are not acceptable."
 )
 
+# SciMind 5.0 — Core Mandates.  Ported from Gemini-CLI's snippets.ts
+# (``# Core Mandates`` block) and re-formulated model-/tool-agnostically so
+# it generalises to Hermes' toolset.  Injected into the stable tier so the
+# upstream KV cache stays warm across turns.  See ``scimind_mandates.py``
+# for the rationale and the explicit list of behavioural rules.
+from agent.scimind_mandates import SCIMIND_5_0_PREAMBLE  # noqa: E402,F401
+
 # Model name substrings that trigger tool-use enforcement guidance.
 # Add new patterns here when a model family needs explicit steering.
 TOOL_USE_ENFORCEMENT_MODELS = ("gpt", "codex", "gemini", "gemma", "grok", "glm", "qwen", "deepseek")

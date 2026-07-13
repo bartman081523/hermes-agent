@@ -6778,18 +6778,51 @@ class HermesCLI(CLIAgentSetupMixin, CLICommandsMixin):
         print(f"  Config File: {config_path} {config_status}")
         print()
     
+    @staticmethod
+    def _resolve_resume_all_sources() -> bool:
+        """Whether /resume should show sessions from all sources or just cli.
+
+        Reads ``HERMES_RESUME_ALL_SOURCES`` from the active config (env
+        override is fine for quick experiments; the user-facing docs
+        point to config.yaml). Default: True (show all sources — this
+        makes imported Claude Code conversations resumable from /resume
+        without an explicit flag)."""
+        env_val = os.environ.get("HERMES_RESUME_ALL_SOURCES")
+        if env_val is not None:
+            return env_val.strip().lower() not in ("0", "false", "no", "off", "")
+        try:
+            from pathlib import Path as _P
+            cfg_path = _P(os.environ.get("HERMES_HOME") or (_P.home() / ".hermes")) / "config.yaml"
+            if cfg_path.exists():
+                import yaml
+                cfg = yaml.safe_load(cfg_path.read_text()) or {}
+                v = cfg.get("resume_all_sources")
+                if v is not None:
+                    return bool(v)
+        except Exception:
+            pass
+        return True
+
     def _list_recent_sessions(self, limit: int = 10) -> list[dict[str, Any]]:
-        """Return recent CLI sessions for in-chat browsing/resume affordances."""
+        """Return recent CLI sessions for in-chat browsing/resume affordances.
+
+        By default this includes sessions from ALL sources (cli, tui,
+        imported:claude-code, etc.) so that imported Claude Code
+        conversations are resumable from /resume. Power users who want
+        to filter back to cli-only can set
+        ``HERMES_RESUME_ALL_SOURCES=false`` in config.yaml.
+        """
         if not self._session_db:
             return []
+        include_all = self._resolve_resume_all_sources()
         try:
             from hermes_cli.session_listing import query_session_listing
 
             return query_session_listing(
                 self._session_db,
-                source="cli",
+                source=None if include_all else "cli",
                 current_session_id=self.session_id,
-                include_all_sources=False,
+                include_all_sources=include_all,
                 include_unnamed=True,
                 limit=limit,
                 exclude_sources=["tool"],

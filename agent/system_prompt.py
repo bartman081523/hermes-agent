@@ -35,6 +35,7 @@ from agent.prompt_builder import (
     OPENAI_MODEL_EXECUTION_GUIDANCE,
     PARALLEL_TOOL_CALL_GUIDANCE,
     PLATFORM_HINTS,
+    SCIMIND_5_0_PREAMBLE,
     SESSION_SEARCH_GUIDANCE,
     SKILLS_GUIDANCE,
     STEER_CHANNEL_NOTE,
@@ -183,6 +184,13 @@ def build_system_prompt_parts(agent: Any, system_message: Optional[str] = None) 
     # (default True) and only injected when tools are actually loaded.
     if getattr(agent, "_parallel_tool_call_guidance", True) and agent.valid_tool_names:
         stable_parts.append(PARALLEL_TOOL_CALL_GUIDANCE)
+
+    # SciMind 5.0 — Core Mandates.  Always-included, byte-stable block
+    # (gated only by configuration to allow opt-out).  Placed in the stable
+    # tier so every session caches it once and reuses it across turns.
+    # See ``agent.scimind_mandates`` for the rule definitions.
+    if getattr(agent, "_scimind_mandates", True):
+        stable_parts.append(SCIMIND_5_0_PREAMBLE)
 
     # Tool-aware behavioral guidance: only inject when the tools are loaded
     tool_guidance = []
