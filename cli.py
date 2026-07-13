@@ -6803,7 +6803,7 @@ class HermesCLI(CLIAgentSetupMixin, CLICommandsMixin):
             pass
         return True
 
-    def _list_recent_sessions(self, limit: int = 10) -> list[dict[str, Any]]:
+    def _list_recent_sessions(self, limit: int = 300) -> list[dict[str, Any]]:
         """Return recent CLI sessions for in-chat browsing/resume affordances.
 
         By default this includes sessions from ALL sources (cli, tui,
